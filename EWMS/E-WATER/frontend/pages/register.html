@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Register — EWMS WASAC</title>
+  <link rel="stylesheet" href="../css/style.css"/>
+</head>
+<body>
+<div class="auth-page">
+  <div class="auth-card">
+    <div class="logo">
+      <div class="icon">💧</div>
+      <h1>Create Account</h1>
+      <p>E-Water Management System · WASAC Rwanda</p>
+    </div>
+
+    <div class="alert alert-error"   id="alert-error"></div>
+    <div class="alert alert-success" id="alert-success"></div>
+
+    <form id="registerForm">
+      <div class="form-group">
+        <label for="fullname">Full name</label>
+        <input type="text" id="fullname" placeholder="Your Name" required/>
+        <span class="form-error" id="err-fullname">Please enter your full name</span>
+      </div>
+      <div class="form-group">
+        <label for="email">Email address</label>
+        <input type="email" id="email" placeholder="Email Address" required/>
+        <span class="form-error" id="err-email">Enter a valid email</span>
+      </div>
+      <div class="form-group">
+        <label for="phone">Phone number</label>
+        <input type="tel" id="phone" placeholder="Phone Number" required/>
+      </div>
+      <div class="form-group">
+        <label for="meter">Meter / Card ID</label>
+        <input type="text" id="meter" placeholder="WASAC-2024-XXXXX" required/>
+        <span class="form-error" id="err-meter">Enter your card ID</span>
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" placeholder="Password" required/>
+        <span class="form-error" id="err-password">Min. 8 characters required</span>
+      </div>
+      <div class="form-group">
+        <label for="confirm">Confirm password</label>
+        <input type="password" id="confirm" placeholder="Repeat password" required/>
+        <span class="form-error" id="err-confirm">Passwords do not match</span>
+      </div>
+      <button type="submit" class="btn btn-primary" id="submitBtn">
+        <span class="spinner" id="spinner"></span>
+        <span id="btnText">Create account</span>
+      </button>
+    </form>
+
+    <div class="auth-link">
+      Already have an account? <a href="login.html">Sign in</a>
+    </div>
+  </div>
+</div>
+
+<script src="../js/auth.js"></script>
+<script>
+  document.getElementById('registerForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!validateRegisterForm()) return;
+
+    showLoading(true);
+
+    try {
+      await api('/auth/register', 'POST', {
+        name:     document.getElementById('fullname').value,
+        email:    document.getElementById('email').value,
+        phone:    document.getElementById('phone').value,
+        meterId:  document.getElementById('meter').value,
+        password: document.getElementById('password').value,
+      });
+
+      // Go straight to login — no OTP needed
+      window.location.href = 'login.html?registered=1';
+    } catch (err) {
+      showAlert('alert-error', err.message || 'Registration failed. Try again.');
+    } finally {
+      showLoading(false);
+    }
+  });
+</script>
+</body>
+</html>

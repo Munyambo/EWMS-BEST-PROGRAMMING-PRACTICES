@@ -1,0 +1,51 @@
+version: '3.9'
+services:
+  mongo:
+    image: mongo:7
+    container_name: ewms_mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - ewms_net
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: ewms_backend
+    restart: unless-stopped
+    env_file: ./backend/.env
+    environment:
+      MONGODB_URI: mongodb://mongo:27017/ewms
+    depends_on:
+      - mongo
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./backend:/app
+      - backend_node_modules:/app/node_modules
+    networks:
+      - ewms_net
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: ewms_frontend
+    restart: unless-stopped
+    ports:
+      - "8090:80"
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/usr/share/nginx/html:ro
+      - ./frontend/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - ewms_net
+volumes:
+  mongo_data:
+  backend_node_modules:
+networks:
+  ewms_net:
+    driver: bridge

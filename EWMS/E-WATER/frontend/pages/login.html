@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login — EWMS WASAC</title>
+  <link rel="stylesheet" href="../css/style.css"/>
+</head>
+<body>
+<div class="auth-page">
+  <div class="auth-card">
+    <div class="logo">
+      <div class="icon">💧</div>
+      <h1>Welcome back</h1>
+      <p>E-Water Management System · WASAC Rwanda</p>
+    </div>
+
+    <div class="alert alert-success" id="alert-success"></div>
+    <div class="alert alert-error"   id="alert-error"></div>
+
+    <form id="loginForm">
+      <div class="form-group">
+        <label for="email">Email address</label>
+        <input type="email" id="email" placeholder="Email Adress" required/>
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" placeholder="Your password" required/>
+      </div>
+      <button type="submit" class="btn btn-primary" id="submitBtn">
+        <span class="spinner" id="spinner"></span>
+        <span id="btnText">Sign in</span>
+      </button>
+    </form>
+
+    <div class="auth-link" style="margin-top:12px">
+      <a href="#" style="color:var(--gray-400);font-size:0.82rem">Forgot password?</a>
+    </div>
+    <div class="auth-link">
+      No account yet? <a href="register.html">Create one</a>
+    </div>
+
+    <!-- Admin shortcut (hidden in real prod) -->
+    <div style="margin-top:24px;padding-top:18px;border-top:1px solid var(--gray-200);text-align:center">
+      <a href="admin-login.html" style="font-size:0.8rem;color:var(--gray-400);text-decoration:none">
+        🏢 Admin portal
+      </a>
+    </div>
+  </div>
+</div>
+
+<script src="../js/auth.js"></script>
+<script>
+  // Show success message if coming from registration
+  if (new URLSearchParams(location.search).get('registered')) {
+    showAlert('alert-success', 'Account created! Sign in below.');
+  }
+
+  document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    showLoading(true);
+
+    try {
+      const res = await api('/auth/login', 'POST', {
+        email:    document.getElementById('email').value,
+        password: document.getElementById('password').value,
+      });
+      // Store JWT token and user info
+      localStorage.setItem('token', res.token);
+      localStorage.setItem('user',  JSON.stringify(res.user));
+      window.location.href = 'dashboard.html';
+    } catch (err) {
+      showAlert('alert-error', err.message || 'Invalid email or password');
+    } finally {
+      showLoading(false);
+    }
+  });
+</script>
+</body>
+</html>
